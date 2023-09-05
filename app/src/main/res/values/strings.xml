@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="txt_titulo">Digite suas Informacoes</string>
+    <string name="txt_hint_edit_nome">Nome</string>
+    <string name="txt_hint_edit_sobrenome">Sobrenome</string>
+    <string name="txt_hint_edit_curso">Curso desejado</string>
+    <string name="txt_hind_edit_telefone">Telefone de contato</string>
+    <string name="txt_button_limpar">Salvar</string>
+    <string name="txt_butao_salvar">Enviar</string>
+    <string name="txt_button_enviar">Limpar</string>
+</resources>
