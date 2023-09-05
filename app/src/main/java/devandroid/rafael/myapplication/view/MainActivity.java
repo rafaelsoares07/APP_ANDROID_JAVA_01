@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.material.internal.TextWatcherAdapter;
 
 import devandroid.rafael.myapplication.R;
 import devandroid.rafael.myapplication.controller.PessoaController;
@@ -39,10 +43,10 @@ public class MainActivity extends AppCompatActivity {
         curso = new Curso();
         pessoa = new Pessoa();
 
-        pessoa.setPrimeiroNome(preferences.getString("primeiroNome", "default"));
-        pessoa.setSobreNome(preferences.getString("sobrenome", "default"));
-        pessoa.setCursoDescricao(preferences.getString("nomeCurso", "default"));
-        pessoa.setTelefoneContato(preferences.getString("telefone", "default"));
+        pessoa.setPrimeiroNome(preferences.getString("primeiroNome", ""));
+        pessoa.setSobreNome(preferences.getString("sobrenome", ""));
+        pessoa.setCursoDescricao(preferences.getString("nomeCurso", ""));
+        pessoa.setTelefoneContato(preferences.getString("telefone", ""));
 
 
         EditText editTextNome;
@@ -69,6 +73,33 @@ public class MainActivity extends AppCompatActivity {
         buttonEnviar = findViewById(R.id.buttonEnviar);
 
 
+        TextWatcher textWatcher = (new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(editTextNome.getText().toString().length()>0 && editTextSobrenome.getText().toString().length()>0 && editTextCurso.getText().toString().length()>0  && editTextTelefone.getText().toString().length()>0){
+                    buttonEnviar.setEnabled(true);
+                }
+                else{
+                    buttonEnviar.setEnabled(false);
+                }
+            }
+        });
+
+        editTextNome.addTextChangedListener(textWatcher);
+        editTextSobrenome.addTextChangedListener(textWatcher);
+        editTextCurso.addTextChangedListener(textWatcher);
+        editTextTelefone.addTextChangedListener(textWatcher);
+
         buttonLimpar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,6 +107,13 @@ public class MainActivity extends AppCompatActivity {
                 editTextSobrenome.setText("");
                 editTextCurso.setText("");
                 editTextTelefone.setText("");
+
+                listaVip.remove("primeiroNome");
+                listaVip.remove("sobrenome");
+                listaVip.remove("nomeCurso");
+                listaVip.remove("telefone");
+
+                listaVip.apply();
             }
         });
 
