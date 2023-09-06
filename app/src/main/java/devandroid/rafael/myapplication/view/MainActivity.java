@@ -21,26 +21,21 @@ import devandroid.rafael.myapplication.model.Curso;
 import devandroid.rafael.myapplication.model.Pessoa;
 
 public class MainActivity extends AppCompatActivity {
-
-    Curso curso;
     Pessoa pessoa;
-
     PessoaController controller;
-
     SharedPreferences preferences;
     public static final String NOME_PREFERENCES = "pref_listavip";
-
-
+    int before;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         controller = new PessoaController();
+
         preferences = getSharedPreferences(NOME_PREFERENCES, 0);
         SharedPreferences.Editor listaVip = preferences.edit();
 
-        curso = new Curso();
         pessoa = new Pessoa();
 
         pessoa.setPrimeiroNome(preferences.getString("primeiroNome", ""));
@@ -72,18 +67,15 @@ public class MainActivity extends AppCompatActivity {
         buttonLimpar = findViewById(R.id.buttonLimpar);
         buttonEnviar = findViewById(R.id.buttonEnviar);
 
-
         TextWatcher textWatcher = (new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                before = editTextTelefone.getText().length();
             }
-
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
                 if(editTextNome.getText().toString().length()>0 && editTextSobrenome.getText().toString().length()>0 && editTextCurso.getText().toString().length()>0  && editTextTelefone.getText().toString().length()>0){
@@ -92,6 +84,43 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     buttonEnviar.setEnabled(false);
                 }
+
+
+                if (editTextTelefone.getText().hashCode() == editable.hashCode()) {
+
+
+                    String phoneNumber = editTextTelefone.getText().toString();
+
+                    Log.i("TELEFONE-ACTIVE", "before:"+before);
+
+
+
+                    String formattedNumber = phoneNumber;
+
+                    Log.i("TELEFONE-ACTIVE", "current"+formattedNumber.length());
+
+                    editTextTelefone.removeTextChangedListener(this);
+
+                    if (formattedNumber.length()==2 && before<formattedNumber.length()){
+
+                        Log.i("TELEFONE-ACTIVE", "2 NUMEROS DIGITADOS");
+                        formattedNumber = "("+phoneNumber+") ";
+
+                    } else if (formattedNumber.length()==10 && before<formattedNumber.length()) {
+
+                        formattedNumber += "-";
+
+                    }
+
+                    editTextTelefone.setText(formattedNumber);
+
+
+                    editTextTelefone.addTextChangedListener(this);
+
+
+                    editTextTelefone.setSelection(formattedNumber.length());
+                }
+
             }
         });
 
@@ -167,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Log.i("POOAndroid",pessoa.toString());
-
 
     }
 }
