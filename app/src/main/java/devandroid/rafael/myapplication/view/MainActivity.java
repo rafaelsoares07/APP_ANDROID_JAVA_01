@@ -132,10 +132,7 @@ public class MainActivity extends AppCompatActivity {
         buttonLimpar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editTextNome.setText("");
-                editTextSobrenome.setText("");
-                editTextCurso.setText("");
-                editTextTelefone.setText("");
+                controller.limpar(editTextNome, editTextSobrenome, editTextCurso, editTextTelefone);
 
                 listaVip.remove("primeiroNome");
                 listaVip.remove("sobrenome");
@@ -189,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 pessoa.setCursoDescricao(editTextCurso.getText().toString());
                 pessoa.setTelefoneContato(editTextTelefone.getText().toString());
 
-                controller.save(pessoa);
+                //controller.save(pessoa);
 
                 Toast.makeText(MainActivity.this, "Dados:"+pessoa.toString(), Toast.LENGTH_SHORT).show();
             }
