@@ -1,6 +1,6 @@
 package devandroid.rafael.myapplication.view;
 
-//Clases do import sáo as que o ActivityMain precisa
+// Classes que estão sendo usadas nessa View
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
@@ -19,9 +19,11 @@ import devandroid.rafael.myapplication.R;
 import devandroid.rafael.myapplication.controller.PessoaController;
 import devandroid.rafael.myapplication.model.Curso;
 import devandroid.rafael.myapplication.model.Pessoa;
+import devandroid.rafael.myapplication.utils.Util;
 
 public class MainActivity extends AppCompatActivity {
     Pessoa pessoa;
+    Util util;
     PessoaController controller;
     SharedPreferences preferences;
     public static final String NOME_PREFERENCES = "pref_listavip";
@@ -31,12 +33,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        controller = new PessoaController();
-
         preferences = getSharedPreferences(NOME_PREFERENCES, 0);
+
         SharedPreferences.Editor listaVip = preferences.edit();
 
         pessoa = new Pessoa();
+
+        util = new Util();
+        
+        controller = new PessoaController(listaVip, pessoa);
+
 
         pessoa.setPrimeiroNome(preferences.getString("primeiroNome", ""));
         pessoa.setSobreNome(preferences.getString("sobrenome", ""));
@@ -44,28 +50,23 @@ public class MainActivity extends AppCompatActivity {
         pessoa.setTelefoneContato(preferences.getString("telefone", ""));
 
 
-        EditText editTextNome;
-        EditText editTextSobrenome;
-        EditText editTextCurso;
-        EditText editTextTelefone;
+        EditText editTextNome = findViewById(R.id.editTextNome);;
+        EditText editTextSobrenome = findViewById(R.id.editTextSobreNome);;
+        EditText editTextCurso = findViewById(R.id.editTextCurso);;
+        EditText editTextTelefone = findViewById(R.id.editTextTelefone);;
 
-        Button buttonSalvar;
-        Button buttonLimpar;
-        Button buttonEnviar;
+        Button buttonSalvar = findViewById(R.id.buttonSalvar);;
+        Button buttonLimpar = findViewById(R.id.buttonLimpar);;
+        Button buttonEnviar = findViewById(R.id.buttonEnviar);;
 
-        editTextNome = findViewById(R.id.editTextNome);
-        editTextSobrenome = findViewById(R.id.editTextSobreNome);
-        editTextCurso = findViewById(R.id.editTextCurso);
-        editTextTelefone = findViewById(R.id.editTextTelefone);
 
         editTextNome.setText(pessoa.getPrimeiroNome());
         editTextSobrenome.setText(pessoa.getSobreNome());
         editTextCurso.setText(pessoa.getCursoDescricao());
         editTextTelefone.setText(pessoa.getTelefoneContato());
 
-        buttonSalvar = findViewById(R.id.buttonSalvar);
-        buttonLimpar = findViewById(R.id.buttonLimpar);
-        buttonEnviar = findViewById(R.id.buttonEnviar);
+        util.changeButtonStatus(buttonEnviar, editTextNome, editTextSobrenome, editTextCurso, editTextTelefone);
+
 
         TextWatcher textWatcher = (new TextWatcher() {
             @Override
@@ -78,45 +79,29 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void afterTextChanged(Editable editable) {
-                if(editTextNome.getText().toString().length()>0 && editTextSobrenome.getText().toString().length()>0 && editTextCurso.getText().toString().length()>0  && editTextTelefone.getText().toString().length()>0){
-                    buttonEnviar.setEnabled(true);
-                }
-                else{
-                    buttonEnviar.setEnabled(false);
-                }
 
+                util.changeButtonStatus(buttonEnviar, editTextNome, editTextSobrenome, editTextCurso, editTextTelefone);
 
                 if (editTextTelefone.getText().hashCode() == editable.hashCode()) {
 
-
                     String phoneNumber = editTextTelefone.getText().toString();
 
-                    Log.i("TELEFONE-ACTIVE", "before:"+before);
-
-
-
                     String formattedNumber = phoneNumber;
-
-                    Log.i("TELEFONE-ACTIVE", "current"+formattedNumber.length());
 
                     editTextTelefone.removeTextChangedListener(this);
 
                     if (formattedNumber.length()==2 && before<formattedNumber.length()){
 
-                        Log.i("TELEFONE-ACTIVE", "2 NUMEROS DIGITADOS");
                         formattedNumber = "("+phoneNumber+") ";
 
                     } else if (formattedNumber.length()==10 && before<formattedNumber.length()) {
 
                         formattedNumber += "-";
-
                     }
 
                     editTextTelefone.setText(formattedNumber);
 
-
                     editTextTelefone.addTextChangedListener(this);
-
 
                     editTextTelefone.setSelection(formattedNumber.length());
                 }
@@ -129,70 +114,24 @@ public class MainActivity extends AppCompatActivity {
         editTextCurso.addTextChangedListener(textWatcher);
         editTextTelefone.addTextChangedListener(textWatcher);
 
-        buttonLimpar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                controller.limpar(editTextNome, editTextSobrenome, editTextCurso, editTextTelefone);
+        buttonLimpar.setOnClickListener(view -> {
 
-                listaVip.remove("primeiroNome");
-                listaVip.remove("sobrenome");
-                listaVip.remove("nomeCurso");
-                listaVip.remove("telefone");
-
-                listaVip.apply();
-            }
+            controller.limpar(editTextNome, editTextSobrenome, editTextCurso, editTextTelefone);
+            Toast.makeText(MainActivity.this, "Dados limpados!", Toast.LENGTH_SHORT).show();
         });
 
         buttonEnviar.setOnClickListener(view -> {
-            if(editTextNome.getText().toString().isEmpty()){
-                editTextNome.setError("Digite seu nome");
-            }
-            if(editTextSobrenome.getText().toString().isEmpty()){
-                editTextSobrenome.setError("Digite seu sobrenome");
-            }
-            if(editTextCurso.getText().toString().isEmpty()){
-                editTextCurso.setError("Digite seu curso");
-            }
 
-            if(editTextTelefone.getText().toString().isEmpty()){
-                editTextTelefone.setError("Digite seu número");
-            }
-            else if(editTextTelefone.getText().toString().length()<11){
-                editTextTelefone.setError("Digite um número válido de 11 caracteres: ");
-            }
-
-            pessoa.setPrimeiroNome(editTextNome.getText().toString());
-            pessoa.setSobreNome(editTextSobrenome.getText().toString());
-            pessoa.setCursoDescricao(editTextCurso.getText().toString());
-            pessoa.setTelefoneContato(editTextTelefone.getText().toString());
-
-            listaVip.putString("primeiroNome", pessoa.getPrimeiroNome());
-            listaVip.putString("sobrenome", pessoa.getSobreNome());
-            listaVip.putString("nomeCurso", pessoa.getCursoDescricao());
-            listaVip.putString("telefone", pessoa.getTelefoneContato());
-
-            listaVip.apply();
-
-            Toast.makeText(MainActivity.this, "Enviado com Sucesso!!", Toast.LENGTH_SHORT).show();
-
-
+            controller.enviar(editTextNome,editTextSobrenome, editTextCurso, editTextTelefone);
+            Toast.makeText(MainActivity.this, "Dados enviados com sucesso!", Toast.LENGTH_SHORT).show();
         });
 
-        buttonSalvar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pessoa.setPrimeiroNome(editTextNome.getText().toString());
-                pessoa.setSobreNome(editTextSobrenome.getText().toString());
-                pessoa.setCursoDescricao(editTextCurso.getText().toString());
-                pessoa.setTelefoneContato(editTextTelefone.getText().toString());
+        buttonSalvar.setOnClickListener(view ->  {
 
-                //controller.save(pessoa);
-
-                Toast.makeText(MainActivity.this, "Dados:"+pessoa.toString(), Toast.LENGTH_SHORT).show();
-            }
+            controller.salvar(editTextNome, editTextSobrenome, editTextCurso, editTextTelefone);
+            Toast.makeText(MainActivity.this, "Dados:"+pessoa.toString(), Toast.LENGTH_SHORT).show();
         });
 
-        Log.i("POOAndroid",pessoa.toString());
 
     }
 }
